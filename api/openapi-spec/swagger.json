@@ -20287,16 +20287,63 @@
         }
       ]
     },
+    "com.github.kubedb.apimachinery.apis.kubedb.v1alpha1.MongoDBNode": {
+      "properties": {
+        "configSource": {
+          "description": "ConfigSource is an optional field to provide custom configuration file for database (i.e mongod.cnf). If specified, this file will be used as configuration file otherwise default configuration file will be used.",
+          "$ref": "#/definitions/io.k8s.api.core.v1.VolumeSource"
+        },
+        "podTemplate": {
+          "description": "PodTemplate is an optional configuration for pods used to expose database",
+          "$ref": "#/definitions/xyz.kmodules.offshoot-api.api.v1.PodTemplateSpec"
+        },
+        "prefix": {
+          "type": "string"
+        },
+        "replicas": {
+          "description": "Replicas represents number of replica for this specific type of node",
+          "type": "integer",
+          "format": "int32"
+        },
+        "resources": {
+          "description": "Compute Resources required by the sidecar container.",
+          "$ref": "#/definitions/io.k8s.api.core.v1.ResourceRequirements"
+        },
+        "storage": {
+          "description": "Storage to specify how storage shall be used.",
+          "$ref": "#/definitions/io.k8s.api.core.v1.PersistentVolumeClaimSpec"
+        }
+      }
+    },
     "com.github.kubedb.apimachinery.apis.kubedb.v1alpha1.MongoDBReplicaSet": {
       "required": [
         "name"
       ],
       "properties": {
         "keyFile": {
+          "description": "Deprecated: Use spec.certificateSecret",
           "$ref": "#/definitions/io.k8s.api.core.v1.SecretVolumeSource"
         },
         "name": {
           "type": "string"
+        }
+      }
+    },
+    "com.github.kubedb.apimachinery.apis.kubedb.v1alpha1.MongoDBShardingTopology": {
+      "required": [
+        "shard",
+        "configServer",
+        "mongos"
+      ],
+      "properties": {
+        "configServer": {
+          "$ref": "#/definitions/com.github.kubedb.apimachinery.apis.kubedb.v1alpha1.MongoDBNode"
+        },
+        "mongos": {
+          "$ref": "#/definitions/com.github.kubedb.apimachinery.apis.kubedb.v1alpha1.MongoDBNode"
+        },
+        "shard": {
+          "$ref": "#/definitions/com.github.kubedb.apimachinery.apis.kubedb.v1alpha1.MongoDBNode"
         }
       }
     },
@@ -20313,6 +20360,14 @@
           "description": "BackupSchedule spec to specify how database backup will be taken",
           "$ref": "#/definitions/com.github.kubedb.apimachinery.apis.kubedb.v1alpha1.BackupScheduleSpec"
         },
+        "certificateSecret": {
+          "description": "Secret with SSL certificates. Contains `tls.pem` or keyfile `key.txt` depending on enableSSL.",
+          "$ref": "#/definitions/io.k8s.api.core.v1.SecretVolumeSource"
+        },
+        "clusterAuthMode": {
+          "description": "ClusterAuthMode for replicaset or sharding. (default will be x509 if enableSSL is true.) See available ClusterAuthMode: https://docs.mongodb.com/manual/reference/program/mongod/#cmdoption-mongod-clusterauthmode",
+          "type": "string"
+        },
         "configSource": {
           "description": "ConfigSource is an optional field to provide custom configuration file for database (i.e mongod.cnf). If specified, this file will be used as configuration file otherwise default configuration file will be used.",
           "$ref": "#/definitions/io.k8s.api.core.v1.VolumeSource"
@@ -20323,6 +20378,10 @@
         },
         "doNotPause": {
           "description": "If DoNotPause is true, controller will prevent to delete this MongoDB object. Controller will create same MongoDB object and ignore other process. Deprecated: Use terminationPolicy = DoNotTerminate",
+          "type": "boolean"
+        },
+        "enableSSL": {
+          "description": "To enable ssl in replicaset and sharding connection",
           "type": "boolean"
         },
         "imagePullSecrets": {
@@ -20372,6 +20431,10 @@
           "description": "ServiceTemplate is an optional configuration for service used to expose database",
           "$ref": "#/definitions/xyz.kmodules.offshoot-api.api.v1.ServiceTemplateSpec"
         },
+        "sslMode": {
+          "description": "SSLMode for both standalone and clusters. (default, preferSSL if enableSSL is true.) See more options: https://docs.mongodb.com/manual/reference/program/mongod/#cmdoption-mongod-sslmode",
+          "type": "boolean"
+        },
         "storage": {
           "description": "Storage spec to specify how storage shall be used.",
           "$ref": "#/definitions/io.k8s.api.core.v1.PersistentVolumeClaimSpec"
@@ -20390,6 +20453,10 @@
           "items": {
             "$ref": "#/definitions/io.k8s.api.core.v1.Toleration"
           }
+        },
+        "topology": {
+          "description": "MongoDB sharding topology.",
+          "$ref": "#/definitions/com.github.kubedb.apimachinery.apis.kubedb.v1alpha1.MongoDBShardingTopology"
         },
         "updateStrategy": {
           "description": "updateStrategy indicates the StatefulSetUpdateStrategy that will be employed to update Pods in the StatefulSet when a revision is made to Template.",
