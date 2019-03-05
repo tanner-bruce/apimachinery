@@ -20293,6 +20293,11 @@
           "description": "ConfigSource is an optional field to provide custom configuration file for database (i.e mongod.cnf). If specified, this file will be used as configuration file otherwise default configuration file will be used.",
           "$ref": "#/definitions/io.k8s.api.core.v1.VolumeSource"
         },
+        "nodes": {
+          "description": "Nodes represents number of components for this specific type of node",
+          "type": "integer",
+          "format": "int32"
+        },
         "podTemplate": {
           "description": "PodTemplate is an optional configuration for pods used to expose database",
           "$ref": "#/definitions/xyz.kmodules.offshoot-api.api.v1.PodTemplateSpec"
@@ -20300,8 +20305,8 @@
         "prefix": {
           "type": "string"
         },
-        "replicas": {
-          "description": "Replicas represents number of replica for this specific type of node",
+        "replicaSetNodes": {
+          "description": "ReplicaSetNodes represents number of replicaset for each of this specific node.",
           "type": "integer",
           "format": "int32"
         },

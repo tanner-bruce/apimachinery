@@ -150,9 +150,11 @@ type MongoDBShardingTopology struct {
 }
 
 type MongoDBNode struct {
-	// Replicas represents number of replica for this specific type of node
-	Replicas *int32 `json:"replicas,omitempty"`
-	Prefix   string `json:"prefix,omitempty"`
+	// Nodes represents number of components for this specific type of node
+	Nodes *int32 `json:"nodes,omitempty"`
+	// ReplicaSetNodes represents number of replicaset for each of this specific node.
+	ReplicaSetNodes *int32 `json:"replicaSetNodes,omitempty"`
+	Prefix          string `json:"prefix,omitempty"`
 	// Storage to specify how storage shall be used.
 	Storage *core.PersistentVolumeClaimSpec `json:"storage,omitempty"`
 	// Compute Resources required by the sidecar container.

@@ -12149,6 +12149,11 @@ spec:
                               type: string
                           required:
                           - volumePath
+                    nodes:
+                      description: Nodes represents number of components for this
+                        specific type of node
+                      format: int32
+                      type: integer
                     podTemplate:
                       description: PodTemplateSpec describes the data a pod should
                         have when created from a template
@@ -14498,9 +14503,9 @@ spec:
                               type: array
                     prefix:
                       type: string
-                    replicas:
-                      description: Replicas represents number of replica for this
-                        specific type of node
+                    replicaSetNodes:
+                      description: ReplicaSetNodes represents number of replicaset
+                        for each of this specific node.
                       format: int32
                       type: integer
                     resources:
@@ -15818,6 +15823,11 @@ spec:
                               type: string
                           required:
                           - volumePath
+                    nodes:
+                      description: Nodes represents number of components for this
+                        specific type of node
+                      format: int32
+                      type: integer
                     podTemplate:
                       description: PodTemplateSpec describes the data a pod should
                         have when created from a template
@@ -18167,9 +18177,9 @@ spec:
                               type: array
                     prefix:
                       type: string
-                    replicas:
-                      description: Replicas represents number of replica for this
-                        specific type of node
+                    replicaSetNodes:
+                      description: ReplicaSetNodes represents number of replicaset
+                        for each of this specific node.
                       format: int32
                       type: integer
                     resources:
@@ -19487,6 +19497,11 @@ spec:
                               type: string
                           required:
                           - volumePath
+                    nodes:
+                      description: Nodes represents number of components for this
+                        specific type of node
+                      format: int32
+                      type: integer
                     podTemplate:
                       description: PodTemplateSpec describes the data a pod should
                         have when created from a template
@@ -21836,9 +21851,9 @@ spec:
                               type: array
                     prefix:
                       type: string
-                    replicas:
-                      description: Replicas represents number of replica for this
-                        specific type of node
+                    replicaSetNodes:
+                      description: ReplicaSetNodes represents number of replicaset
+                        for each of this specific node.
                       format: int32
                       type: integer
                     resources:

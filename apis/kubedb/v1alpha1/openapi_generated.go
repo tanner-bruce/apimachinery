@@ -1732,9 +1732,16 @@ func schema_apimachinery_apis_kubedb_v1alpha1_MongoDBNode(ref common.ReferenceCa
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
 				Properties: map[string]spec.Schema{
-					"replicas": {
+					"nodes": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Replicas represents number of replica for this specific type of node",
+							Description: "Nodes represents number of components for this specific type of node",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"replicaSetNodes": {
+						SchemaProps: spec.SchemaProps{
+							Description: "ReplicaSetNodes represents number of replicaset for each of this specific node.",
 							Type:        []string{"integer"},
 							Format:      "int32",
 						},
