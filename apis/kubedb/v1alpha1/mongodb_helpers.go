@@ -11,12 +11,19 @@ import (
 	core "k8s.io/api/core/v1"
 	apiextensions "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 	crdutils "kmodules.xyz/client-go/apiextensions/v1beta1"
+	v1 "kmodules.xyz/client-go/core/v1"
 	meta_util "kmodules.xyz/client-go/meta"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 	mona "kmodules.xyz/monitoring-agent-api/api/v1"
 )
 
 var _ apis.ResourceInfo = &MongoDB{}
+
+const (
+	MongoDBShardLabelKey  = "node.shard"
+	MongoDBConfigLabelKey = "node.config"
+	MongoDBMongosLabelKey = "node.mongos"
+)
 
 func (m MongoDB) OffshootName() string {
 	return m.Name
@@ -51,6 +58,24 @@ func (m MongoDB) OffshootSelectors() map[string]string {
 		LabelDatabaseName: m.Name,
 		LabelDatabaseKind: ResourceKindMongoDB,
 	}
+}
+
+func (m MongoDB) ShardOffshootSelectors(nodeNum int32) map[string]string {
+	return v1.UpsertMap(m.OffshootSelectors(), map[string]string{
+		MongoDBShardLabelKey: m.ShardOffshootName(nodeNum),
+	})
+}
+
+func (m MongoDB) ConfigSvrOffshootSelectors() map[string]string {
+	return v1.UpsertMap(m.OffshootSelectors(), map[string]string{
+		MongoDBConfigLabelKey: m.ConfigSvrOffshootName(),
+	})
+}
+
+func (m MongoDB) MongosOffshootSelectors() map[string]string {
+	return v1.UpsertMap(m.OffshootSelectors(), map[string]string{
+		MongoDBMongosLabelKey: m.MongosOffshootName(),
+	})
 }
 
 func (m MongoDB) OffshootLabels() map[string]string {
