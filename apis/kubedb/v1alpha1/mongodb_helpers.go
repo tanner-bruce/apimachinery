@@ -29,7 +29,7 @@ func (m MongoDB) OffshootName() string {
 	return m.Name
 }
 
-func (m MongoDB) ShardOffshootName(nodeNum int32) string {
+func (m MongoDB) ShardNodeName(nodeNum int32) string {
 	if m.Spec.Topology == nil {
 		return ""
 	}
@@ -37,15 +37,15 @@ func (m MongoDB) ShardOffshootName(nodeNum int32) string {
 	return m.Spec.Topology.Shard.Prefix + shardName
 }
 
-func (m MongoDB) ConfigSvrOffshootName() string {
+func (m MongoDB) ConfigSvrNodeName() string {
 	if m.Spec.Topology == nil {
 		return ""
 	}
-	configdbName := fmt.Sprintf("%v-configdb", m.OffshootName())
-	return m.Spec.Topology.ConfigServer.Prefix + configdbName
+	configsvrName := fmt.Sprintf("%v-configsvr", m.OffshootName())
+	return m.Spec.Topology.ConfigServer.Prefix + configsvrName
 }
 
-func (m MongoDB) MongosOffshootName() string {
+func (m MongoDB) MongosNodeName() string {
 	if m.Spec.Topology == nil {
 		return ""
 	}
@@ -60,21 +60,21 @@ func (m MongoDB) OffshootSelectors() map[string]string {
 	}
 }
 
-func (m MongoDB) ShardOffshootSelectors(nodeNum int32) map[string]string {
+func (m MongoDB) ShardSelectors(nodeNum int32) map[string]string {
 	return v1.UpsertMap(m.OffshootSelectors(), map[string]string{
-		MongoDBShardLabelKey: m.ShardOffshootName(nodeNum),
+		MongoDBShardLabelKey: m.ShardNodeName(nodeNum),
 	})
 }
 
-func (m MongoDB) ConfigSvrOffshootSelectors() map[string]string {
+func (m MongoDB) ConfigSvrSelectors() map[string]string {
 	return v1.UpsertMap(m.OffshootSelectors(), map[string]string{
-		MongoDBConfigLabelKey: m.ConfigSvrOffshootName(),
+		MongoDBConfigLabelKey: m.ConfigSvrNodeName(),
 	})
 }
 
-func (m MongoDB) MongosOffshootSelectors() map[string]string {
+func (m MongoDB) MongosSelectors() map[string]string {
 	return v1.UpsertMap(m.OffshootSelectors(), map[string]string{
-		MongoDBMongosLabelKey: m.MongosOffshootName(),
+		MongoDBMongosLabelKey: m.MongosNodeName(),
 	})
 }
 
@@ -86,6 +86,18 @@ func (m MongoDB) OffshootLabels() map[string]string {
 	out[meta_util.ComponentLabelKey] = "database"
 	out[meta_util.ManagedByLabelKey] = GenericKey
 	return meta_util.FilterKeys(GenericKey, out, m.Labels)
+}
+
+func (m MongoDB) ShardLabels(nodeNum int32) map[string]string {
+	return meta_util.FilterKeys(GenericKey, m.ShardSelectors(nodeNum), m.Labels)
+}
+
+func (m MongoDB) ConfigSvrLabels() map[string]string {
+	return meta_util.FilterKeys(GenericKey, m.ConfigSvrSelectors(), m.Labels)
+}
+
+func (m MongoDB) MongosLabels() map[string]string {
+	return meta_util.FilterKeys(GenericKey, m.MongosSelectors(), m.Labels)
 }
 
 func (m MongoDB) ResourceShortCode() string {
