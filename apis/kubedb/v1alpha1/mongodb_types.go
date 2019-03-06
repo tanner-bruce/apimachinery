@@ -144,17 +144,22 @@ type MongoDBReplicaSet struct {
 }
 
 type MongoDBShardingTopology struct {
-	Shard        MongoDBNode `json:"shard"`
-	ConfigServer MongoDBNode `json:"configServer"`
-	Mongos       MongoDBNode `json:"mongos"`
+	Shard        MongoDBShardNode `json:"shard"`
+	ConfigServer MongoDBNode      `json:"configServer"`
+	Mongos       MongoDBNode      `json:"mongos"`
+}
+
+type MongoDBShardNode struct {
+	// Nodes represents number of components for this specific type of node
+	Shards      *int32 `json:"shards,omitempty"`
+	MongoDBNode `json:",inline,omitempty"`
 }
 
 type MongoDBNode struct {
-	// Nodes represents number of components for this specific type of node
-	Nodes *int32 `json:"nodes,omitempty"`
-	// ReplicaSetNodes represents number of replicaset for each of this specific node.
-	ReplicaSetNodes *int32 `json:"replicaSetNodes,omitempty"`
-	Prefix          string `json:"prefix,omitempty"`
+	// Replicas represents number of replica for each of this specific node.
+	// If current node has replicaset enabled, then replicas is the amount of replicaset nodes.
+	Replicas *int32 `json:"replicas,omitempty"`
+	Prefix   string `json:"prefix,omitempty"`
 	// Storage to specify how storage shall be used.
 	Storage *core.PersistentVolumeClaimSpec `json:"storage,omitempty"`
 	// Compute Resources required by the sidecar container.

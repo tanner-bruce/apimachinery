@@ -12149,11 +12149,6 @@ spec:
                               type: string
                           required:
                           - volumePath
-                    nodes:
-                      description: Nodes represents number of components for this
-                        specific type of node
-                      format: int32
-                      type: integer
                     podTemplate:
                       description: PodTemplateSpec describes the data a pod should
                         have when created from a template
@@ -14503,9 +14498,10 @@ spec:
                               type: array
                     prefix:
                       type: string
-                    replicaSetNodes:
-                      description: ReplicaSetNodes represents number of replicaset
-                        for each of this specific node.
+                    replicas:
+                      description: Replicas represents number of replica for each
+                        of this specific node. If current node has replicaset enabled,
+                        then replicas is the amount of replicaset nodes.
                       format: int32
                       type: integer
                     resources:
@@ -15823,11 +15819,6 @@ spec:
                               type: string
                           required:
                           - volumePath
-                    nodes:
-                      description: Nodes represents number of components for this
-                        specific type of node
-                      format: int32
-                      type: integer
                     podTemplate:
                       description: PodTemplateSpec describes the data a pod should
                         have when created from a template
@@ -18177,9 +18168,10 @@ spec:
                               type: array
                     prefix:
                       type: string
-                    replicaSetNodes:
-                      description: ReplicaSetNodes represents number of replicaset
-                        for each of this specific node.
+                    replicas:
+                      description: Replicas represents number of replica for each
+                        of this specific node. If current node has replicaset enabled,
+                        then replicas is the amount of replicaset nodes.
                       format: int32
                       type: integer
                     resources:
@@ -19497,11 +19489,6 @@ spec:
                               type: string
                           required:
                           - volumePath
-                    nodes:
-                      description: Nodes represents number of components for this
-                        specific type of node
-                      format: int32
-                      type: integer
                     podTemplate:
                       description: PodTemplateSpec describes the data a pod should
                         have when created from a template
@@ -21851,9 +21838,10 @@ spec:
                               type: array
                     prefix:
                       type: string
-                    replicaSetNodes:
-                      description: ReplicaSetNodes represents number of replicaset
-                        for each of this specific node.
+                    replicas:
+                      description: Replicas represents number of replica for each
+                        of this specific node. If current node has replicaset enabled,
+                        then replicas is the amount of replicaset nodes.
                       format: int32
                       type: integer
                     resources:
@@ -21871,6 +21859,11 @@ spec:
                             otherwise to an implementation-defined value. More info:
                             https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/'
                           type: object
+                    shards:
+                      description: Nodes represents number of components for this
+                        specific type of node
+                      format: int32
+                      type: integer
                     storage:
                       description: PersistentVolumeClaimSpec describes the common
                         attributes of storage devices and allows a Source for provider-specific
