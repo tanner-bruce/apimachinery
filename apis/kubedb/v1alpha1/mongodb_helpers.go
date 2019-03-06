@@ -22,6 +22,30 @@ func (m MongoDB) OffshootName() string {
 	return m.Name
 }
 
+func (m MongoDB) ShardOffshootName(nodeNum int32) string {
+	if m.Spec.Topology == nil {
+		return ""
+	}
+	shardName := fmt.Sprintf("%v-shard%v", m.OffshootName(), nodeNum)
+	return m.Spec.Topology.Shard.Prefix + shardName
+}
+
+func (m MongoDB) ConfigSvrOffshootName() string {
+	if m.Spec.Topology == nil {
+		return ""
+	}
+	configdbName := fmt.Sprintf("%v-configdb", m.OffshootName())
+	return m.Spec.Topology.ConfigServer.Prefix + configdbName
+}
+
+func (m MongoDB) MongosOffshootName() string {
+	if m.Spec.Topology == nil {
+		return ""
+	}
+	mongosName := fmt.Sprintf("%v-mongos", m.OffshootName())
+	return m.Spec.Topology.Mongos.Prefix + mongosName
+}
+
 func (m MongoDB) OffshootSelectors() map[string]string {
 	return map[string]string{
 		LabelDatabaseName: m.Name,
@@ -59,8 +83,8 @@ func (m MongoDB) ServiceName() string {
 	return m.OffshootName()
 }
 
-func (m MongoDB) GoverningServiceName() string {
-	return m.OffshootName() + "-gvr"
+func (m MongoDB) GoverningServiceName(name string) string {
+	return m.Name + "-gvr"
 }
 
 // Snapshot service account name.
@@ -77,9 +101,9 @@ func (m MongoDB) SnapshotSAName() string {
 func (m MongoDB) HostAddress() string {
 	host := m.ServiceName()
 	if m.Spec.ReplicaSet != nil {
-		host = m.Spec.ReplicaSet.Name + "/" + m.Name + "-0." + m.GoverningServiceName() + "." + m.Namespace + ".svc"
+		host = m.Spec.ReplicaSet.Name + "/" + m.Name + "-0." + m.GoverningServiceName(m.OffshootName()) + "." + m.Namespace + ".svc"
 		for i := 1; i < int(types.Int32(m.Spec.Replicas)); i++ {
-			host += "," + m.Name + "-" + strconv.Itoa(i) + "." + m.GoverningServiceName() + "." + m.Namespace + ".svc"
+			host += "," + m.Name + "-" + strconv.Itoa(i) + "." + m.GoverningServiceName(m.OffshootName()) + "." + m.Namespace + ".svc"
 		}
 	}
 	return host
