@@ -303,6 +303,11 @@ func (m *MongoDBSpec) SetDefaults() {
 			m.TerminationPolicy = TerminationPolicyPause
 		}
 	}
+	if m.ReplicaSet != nil && m.ReplicaSet.KeyFile != nil &&
+		m.CertificateSecret == nil {
+		m.CertificateSecret = m.ReplicaSet.KeyFile
+	}
+
 	m.setDefaultProbes()
 }
 
@@ -352,6 +357,9 @@ func (m *MongoDBSpec) GetSecrets() []string {
 	var secrets []string
 	if m.DatabaseSecret != nil {
 		secrets = append(secrets, m.DatabaseSecret.SecretName)
+	}
+	if m.ReplicaSet != nil && m.CertificateSecret != nil {
+		secrets = append(secrets, m.CertificateSecret.SecretName)
 	}
 	if m.ReplicaSet != nil && m.ReplicaSet.KeyFile != nil {
 		secrets = append(secrets, m.ReplicaSet.KeyFile.SecretName)
