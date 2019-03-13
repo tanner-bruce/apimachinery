@@ -137,7 +137,7 @@ func (m MongoDB) ServiceName() string {
 }
 
 func (m MongoDB) GoverningServiceName(name string) string {
-	return m.Name + "-gvr"
+	return name + "-gvr"
 }
 
 // Snapshot service account name.
