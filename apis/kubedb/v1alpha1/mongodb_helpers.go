@@ -53,6 +53,26 @@ func (m MongoDB) MongosNodeName() string {
 	return m.Spec.Topology.Mongos.Prefix + mongosName
 }
 
+func (m MongoDB) ShardReplicaSetName(nodeNum int32) string {
+	repSetName := fmt.Sprintf("shard%v", nodeNum)
+
+	if m.Spec.Topology != nil && m.Spec.Topology.Shard.Prefix != "" {
+		repSetName = fmt.Sprintf("%v%v", m.Spec.Topology.Shard.Prefix, nodeNum)
+	}
+
+	return repSetName
+}
+
+func (m MongoDB) ConfigSvrReplicaSetName() string {
+	repSetName := fmt.Sprintf("cnfRepSet")
+
+	if m.Spec.Topology != nil && m.Spec.Topology.ConfigServer.Prefix != "" {
+		repSetName = m.Spec.Topology.ConfigServer.Prefix
+	}
+
+	return repSetName
+}
+
 func (m MongoDB) OffshootSelectors() map[string]string {
 	return map[string]string{
 		LabelDatabaseName: m.Name,
@@ -89,15 +109,15 @@ func (m MongoDB) OffshootLabels() map[string]string {
 }
 
 func (m MongoDB) ShardLabels(nodeNum int32) map[string]string {
-	return meta_util.FilterKeys(GenericKey, m.ShardSelectors(nodeNum), m.Labels)
+	return meta_util.FilterKeys(GenericKey, m.OffshootLabels(), m.ShardSelectors(nodeNum))
 }
 
 func (m MongoDB) ConfigSvrLabels() map[string]string {
-	return meta_util.FilterKeys(GenericKey, m.ConfigSvrSelectors(), m.Labels)
+	return meta_util.FilterKeys(GenericKey, m.OffshootLabels(), m.ConfigSvrSelectors())
 }
 
 func (m MongoDB) MongosLabels() map[string]string {
-	return meta_util.FilterKeys(GenericKey, m.MongosSelectors(), m.Labels)
+	return meta_util.FilterKeys(GenericKey, m.OffshootLabels(), m.MongosSelectors())
 }
 
 func (m MongoDB) ResourceShortCode() string {
