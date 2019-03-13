@@ -55,21 +55,17 @@ func (m MongoDB) MongosNodeName() string {
 
 func (m MongoDB) ShardReplicaSetName(nodeNum int32) string {
 	repSetName := fmt.Sprintf("shard%v", nodeNum)
-
 	if m.Spec.Topology != nil && m.Spec.Topology.Shard.Prefix != "" {
 		repSetName = fmt.Sprintf("%v%v", m.Spec.Topology.Shard.Prefix, nodeNum)
 	}
-
 	return repSetName
 }
 
 func (m MongoDB) ConfigSvrReplicaSetName() string {
 	repSetName := fmt.Sprintf("cnfRepSet")
-
 	if m.Spec.Topology != nil && m.Spec.Topology.ConfigServer.Prefix != "" {
 		repSetName = m.Spec.Topology.ConfigServer.Prefix
 	}
-
 	return repSetName
 }
 
