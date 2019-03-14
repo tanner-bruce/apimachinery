@@ -20258,6 +20258,34 @@
         }
       ]
     },
+    "com.github.kubedb.apimachinery.apis.kubedb.v1alpha1.MongoDBConfigNode": {
+      "properties": {
+        "configSource": {
+          "description": "ConfigSource is an optional field to provide custom configuration file for database (i.e mongod.cnf). If specified, this file will be used as configuration file otherwise default configuration file will be used.",
+          "$ref": "#/definitions/io.k8s.api.core.v1.VolumeSource"
+        },
+        "podTemplate": {
+          "description": "PodTemplate is an optional configuration for pods used to expose database",
+          "$ref": "#/definitions/xyz.kmodules.offshoot-api.api.v1.PodTemplateSpec"
+        },
+        "prefix": {
+          "type": "string"
+        },
+        "replicas": {
+          "description": "Replicas represents number of replica for each of this specific node. If current node has replicaset enabled, then replicas is the amount of replicaset nodes.",
+          "type": "integer",
+          "format": "int32"
+        },
+        "resources": {
+          "description": "Compute Resources required by the sidecar container.",
+          "$ref": "#/definitions/io.k8s.api.core.v1.ResourceRequirements"
+        },
+        "storage": {
+          "description": "Storage to specify how storage shall be used.",
+          "$ref": "#/definitions/io.k8s.api.core.v1.PersistentVolumeClaimSpec"
+        }
+      }
+    },
     "com.github.kubedb.apimachinery.apis.kubedb.v1alpha1.MongoDBList": {
       "properties": {
         "apiVersion": {
@@ -20308,10 +20336,6 @@
         "resources": {
           "description": "Compute Resources required by the sidecar container.",
           "$ref": "#/definitions/io.k8s.api.core.v1.ResourceRequirements"
-        },
-        "storage": {
-          "description": "Storage to specify how storage shall be used.",
-          "$ref": "#/definitions/io.k8s.api.core.v1.PersistentVolumeClaimSpec"
         }
       }
     },
@@ -20370,7 +20394,7 @@
       ],
       "properties": {
         "configServer": {
-          "$ref": "#/definitions/com.github.kubedb.apimachinery.apis.kubedb.v1alpha1.MongoDBNode"
+          "$ref": "#/definitions/com.github.kubedb.apimachinery.apis.kubedb.v1alpha1.MongoDBConfigNode"
         },
         "mongos": {
           "$ref": "#/definitions/com.github.kubedb.apimachinery.apis.kubedb.v1alpha1.MongoDBNode"

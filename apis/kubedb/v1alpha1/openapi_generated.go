@@ -59,6 +59,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"github.com/kubedb/apimachinery/apis/kubedb/v1alpha1.MemcachedSpec":                schema_apimachinery_apis_kubedb_v1alpha1_MemcachedSpec(ref),
 		"github.com/kubedb/apimachinery/apis/kubedb/v1alpha1.MemcachedStatus":              schema_apimachinery_apis_kubedb_v1alpha1_MemcachedStatus(ref),
 		"github.com/kubedb/apimachinery/apis/kubedb/v1alpha1.MongoDB":                      schema_apimachinery_apis_kubedb_v1alpha1_MongoDB(ref),
+		"github.com/kubedb/apimachinery/apis/kubedb/v1alpha1.MongoDBConfigNode":            schema_apimachinery_apis_kubedb_v1alpha1_MongoDBConfigNode(ref),
 		"github.com/kubedb/apimachinery/apis/kubedb/v1alpha1.MongoDBList":                  schema_apimachinery_apis_kubedb_v1alpha1_MongoDBList(ref),
 		"github.com/kubedb/apimachinery/apis/kubedb/v1alpha1.MongoDBNode":                  schema_apimachinery_apis_kubedb_v1alpha1_MongoDBNode(ref),
 		"github.com/kubedb/apimachinery/apis/kubedb/v1alpha1.MongoDBReplicaSet":            schema_apimachinery_apis_kubedb_v1alpha1_MongoDBReplicaSet(ref),
@@ -1683,6 +1684,56 @@ func schema_apimachinery_apis_kubedb_v1alpha1_MongoDB(ref common.ReferenceCallba
 	}
 }
 
+func schema_apimachinery_apis_kubedb_v1alpha1_MongoDBConfigNode(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Properties: map[string]spec.Schema{
+					"replicas": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Replicas represents number of replica for each of this specific node. If current node has replicaset enabled, then replicas is the amount of replicaset nodes.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"prefix": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+					"resources": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Compute Resources required by the sidecar container.",
+							Ref:         ref("k8s.io/api/core/v1.ResourceRequirements"),
+						},
+					},
+					"configSource": {
+						SchemaProps: spec.SchemaProps{
+							Description: "ConfigSource is an optional field to provide custom configuration file for database (i.e mongod.cnf). If specified, this file will be used as configuration file otherwise default configuration file will be used.",
+							Ref:         ref("k8s.io/api/core/v1.VolumeSource"),
+						},
+					},
+					"podTemplate": {
+						SchemaProps: spec.SchemaProps{
+							Description: "PodTemplate is an optional configuration for pods used to expose database",
+							Ref:         ref("kmodules.xyz/offshoot-api/api/v1.PodTemplateSpec"),
+						},
+					},
+					"storage": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Storage to specify how storage shall be used.",
+							Ref:         ref("k8s.io/api/core/v1.PersistentVolumeClaimSpec"),
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"k8s.io/api/core/v1.PersistentVolumeClaimSpec", "k8s.io/api/core/v1.ResourceRequirements", "k8s.io/api/core/v1.VolumeSource", "kmodules.xyz/offshoot-api/api/v1.PodTemplateSpec"},
+	}
+}
+
 func schema_apimachinery_apis_kubedb_v1alpha1_MongoDBList(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
@@ -1746,12 +1797,6 @@ func schema_apimachinery_apis_kubedb_v1alpha1_MongoDBNode(ref common.ReferenceCa
 							Format: "",
 						},
 					},
-					"storage": {
-						SchemaProps: spec.SchemaProps{
-							Description: "Storage to specify how storage shall be used.",
-							Ref:         ref("k8s.io/api/core/v1.PersistentVolumeClaimSpec"),
-						},
-					},
 					"resources": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Compute Resources required by the sidecar container.",
@@ -1774,7 +1819,7 @@ func schema_apimachinery_apis_kubedb_v1alpha1_MongoDBNode(ref common.ReferenceCa
 			},
 		},
 		Dependencies: []string{
-			"k8s.io/api/core/v1.PersistentVolumeClaimSpec", "k8s.io/api/core/v1.ResourceRequirements", "k8s.io/api/core/v1.VolumeSource", "kmodules.xyz/offshoot-api/api/v1.PodTemplateSpec"},
+			"k8s.io/api/core/v1.ResourceRequirements", "k8s.io/api/core/v1.VolumeSource", "kmodules.xyz/offshoot-api/api/v1.PodTemplateSpec"},
 	}
 }
 
@@ -1829,12 +1874,6 @@ func schema_apimachinery_apis_kubedb_v1alpha1_MongoDBShardNode(ref common.Refere
 							Format: "",
 						},
 					},
-					"storage": {
-						SchemaProps: spec.SchemaProps{
-							Description: "Storage to specify how storage shall be used.",
-							Ref:         ref("k8s.io/api/core/v1.PersistentVolumeClaimSpec"),
-						},
-					},
 					"resources": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Compute Resources required by the sidecar container.",
@@ -1851,6 +1890,12 @@ func schema_apimachinery_apis_kubedb_v1alpha1_MongoDBShardNode(ref common.Refere
 						SchemaProps: spec.SchemaProps{
 							Description: "PodTemplate is an optional configuration for pods used to expose database",
 							Ref:         ref("kmodules.xyz/offshoot-api/api/v1.PodTemplateSpec"),
+						},
+					},
+					"storage": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Storage to specify how storage shall be used.",
+							Ref:         ref("k8s.io/api/core/v1.PersistentVolumeClaimSpec"),
 						},
 					},
 				},
@@ -1873,7 +1918,7 @@ func schema_apimachinery_apis_kubedb_v1alpha1_MongoDBShardingTopology(ref common
 					},
 					"configServer": {
 						SchemaProps: spec.SchemaProps{
-							Ref: ref("github.com/kubedb/apimachinery/apis/kubedb/v1alpha1.MongoDBNode"),
+							Ref: ref("github.com/kubedb/apimachinery/apis/kubedb/v1alpha1.MongoDBConfigNode"),
 						},
 					},
 					"mongos": {
@@ -1886,7 +1931,7 @@ func schema_apimachinery_apis_kubedb_v1alpha1_MongoDBShardingTopology(ref common
 			},
 		},
 		Dependencies: []string{
-			"github.com/kubedb/apimachinery/apis/kubedb/v1alpha1.MongoDBNode", "github.com/kubedb/apimachinery/apis/kubedb/v1alpha1.MongoDBShardNode"},
+			"github.com/kubedb/apimachinery/apis/kubedb/v1alpha1.MongoDBConfigNode", "github.com/kubedb/apimachinery/apis/kubedb/v1alpha1.MongoDBNode", "github.com/kubedb/apimachinery/apis/kubedb/v1alpha1.MongoDBShardNode"},
 	}
 }
 
