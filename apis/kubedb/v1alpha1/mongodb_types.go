@@ -146,7 +146,7 @@ type MongoDBReplicaSet struct {
 type MongoDBShardingTopology struct {
 	Shard        MongoDBShardNode  `json:"shard"`
 	ConfigServer MongoDBConfigNode `json:"configServer"`
-	Mongos       MongoDBNode       `json:"mongos"`
+	Mongos       MongoDBMongosNode `json:"mongos"`
 }
 
 type MongoDBShardNode struct {
@@ -161,6 +161,13 @@ type MongoDBConfigNode struct {
 	MongoDBNode `json:",inline,omitempty"`
 	// Storage to specify how storage shall be used.
 	Storage *core.PersistentVolumeClaimSpec `json:"storage,omitempty"`
+}
+
+type MongoDBMongosNode struct {
+	MongoDBNode `json:",inline,omitempty"`
+	// The deployment strategy to use to replace existing pods with new ones.
+	// +optional
+	UpdateStrategy apps.DeploymentStrategy `json:"strategy,omitempty" protobuf:"bytes,4,opt,name=strategy"`
 }
 
 type MongoDBNode struct {

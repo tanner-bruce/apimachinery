@@ -20315,7 +20315,7 @@
         }
       ]
     },
-    "com.github.kubedb.apimachinery.apis.kubedb.v1alpha1.MongoDBNode": {
+    "com.github.kubedb.apimachinery.apis.kubedb.v1alpha1.MongoDBMongosNode": {
       "properties": {
         "configSource": {
           "description": "ConfigSource is an optional field to provide custom configuration file for database (i.e mongod.cnf). If specified, this file will be used as configuration file otherwise default configuration file will be used.",
@@ -20336,6 +20336,10 @@
         "resources": {
           "description": "Compute Resources required by the sidecar container.",
           "$ref": "#/definitions/io.k8s.api.core.v1.ResourceRequirements"
+        },
+        "strategy": {
+          "description": "The deployment strategy to use to replace existing pods with new ones.",
+          "$ref": "#/definitions/io.k8s.api.apps.v1.DeploymentStrategy"
         }
       }
     },
@@ -20397,7 +20401,7 @@
           "$ref": "#/definitions/com.github.kubedb.apimachinery.apis.kubedb.v1alpha1.MongoDBConfigNode"
         },
         "mongos": {
-          "$ref": "#/definitions/com.github.kubedb.apimachinery.apis.kubedb.v1alpha1.MongoDBNode"
+          "$ref": "#/definitions/com.github.kubedb.apimachinery.apis.kubedb.v1alpha1.MongoDBMongosNode"
         },
         "shard": {
           "$ref": "#/definitions/com.github.kubedb.apimachinery.apis.kubedb.v1alpha1.MongoDBShardNode"

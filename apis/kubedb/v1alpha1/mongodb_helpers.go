@@ -324,6 +324,10 @@ func (m *MongoDBSpec) SetDefaults() {
 		m.CertificateSecret = m.ReplicaSet.KeyFile
 	}
 
+	if m.Topology != nil && m.Topology.Mongos.UpdateStrategy.Type == "" {
+		m.Topology.Mongos.UpdateStrategy.Type = apps.RollingUpdateDeploymentStrategyType
+	}
+
 	m.setDefaultProbes()
 }
 
