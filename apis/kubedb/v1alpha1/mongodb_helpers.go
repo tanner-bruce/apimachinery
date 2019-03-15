@@ -53,7 +53,7 @@ func (m MongoDB) MongosNodeName() string {
 	return m.Spec.Topology.Mongos.Prefix + mongosName
 }
 
-func (m MongoDB) ShardReplicaSetName(nodeNum int32) string {
+func (m MongoDB) ShardRepSetName(nodeNum int32) string {
 	repSetName := fmt.Sprintf("shard%v", nodeNum)
 	if m.Spec.Topology != nil && m.Spec.Topology.Shard.Prefix != "" {
 		repSetName = fmt.Sprintf("%v%v", m.Spec.Topology.Shard.Prefix, nodeNum)
@@ -61,7 +61,7 @@ func (m MongoDB) ShardReplicaSetName(nodeNum int32) string {
 	return repSetName
 }
 
-func (m MongoDB) ConfigSvrReplicaSetName() string {
+func (m MongoDB) ConfigSvrRepSetName() string {
 	repSetName := fmt.Sprintf("cnfRepSet")
 	if m.Spec.Topology != nil && m.Spec.Topology.ConfigServer.Prefix != "" {
 		repSetName = m.Spec.Topology.ConfigServer.Prefix
@@ -136,7 +136,9 @@ func (m MongoDB) ServiceName() string {
 	return m.OffshootName()
 }
 
-func (m MongoDB) GoverningServiceName(name string) string {
+// Governing Service Name. Here, name parameter is either
+// OffshootName, ShardNodeName or ConfigSvrNodeName
+func (m MongoDB) GvrSvcName(name string) string {
 	return name + "-gvr"
 }
 
@@ -154,10 +156,32 @@ func (m MongoDB) SnapshotSAName() string {
 func (m MongoDB) HostAddress() string {
 	host := m.ServiceName()
 	if m.Spec.ReplicaSet != nil {
-		host = m.Spec.ReplicaSet.Name + "/" + m.Name + "-0." + m.GoverningServiceName(m.OffshootName()) + "." + m.Namespace + ".svc"
+		host = m.Spec.ReplicaSet.Name + "/" + m.Name + "-0." + m.GvrSvcName(m.OffshootName()) + "." + m.Namespace + ".svc"
 		for i := 1; i < int(types.Int32(m.Spec.Replicas)); i++ {
-			host += "," + m.Name + "-" + strconv.Itoa(i) + "." + m.GoverningServiceName(m.OffshootName()) + "." + m.Namespace + ".svc"
+			host += "," + m.Name + "-" + strconv.Itoa(i) + "." + m.GvrSvcName(m.OffshootName()) + "." + m.Namespace + ".svc"
 		}
+	}
+	return host
+}
+
+func (m MongoDB) ShardDSN(nodeNum int32) string {
+	if m.Spec.Topology != nil {
+		return ""
+	}
+	host := m.ShardRepSetName(nodeNum) + "/" + m.Name + "-0." + m.GvrSvcName(m.ShardNodeName(nodeNum)) + "." + m.Namespace + ".svc"
+	for i := 1; i < int(types.Int32(m.Spec.Topology.Shard.Replicas)); i++ {
+		host += "," + m.Name + "-" + strconv.Itoa(i) + "." + m.GvrSvcName(m.ShardNodeName(nodeNum)) + "." + m.Namespace + ".svc"
+	}
+	return host
+}
+
+func (m MongoDB) ConfigSvrDSN() string {
+	if m.Spec.Topology != nil {
+		return ""
+	}
+	host := m.ConfigSvrRepSetName() + "/" + m.Name + "-0." + m.GvrSvcName(m.ConfigSvrNodeName()) + "." + m.Namespace + ".svc"
+	for i := 1; i < int(types.Int32(m.Spec.Topology.Shard.Replicas)); i++ {
+		host += "," + m.Name + "-" + strconv.Itoa(i) + "." + m.GvrSvcName(m.ConfigSvrNodeName()) + "." + m.Namespace + ".svc"
 	}
 	return host
 }
