@@ -1,5 +1,5 @@
 hash: f8d8b24ab5bf5f4df6aa9a52c18be0e25f75a4589e2f0c7865ab8eb634b9f1b0
-updated: 2019-03-18T15:08:04.368850872-07:00
+updated: 2019-03-23T09:02:59.853310882-07:00
 imports:
 - name: bitbucket.org/ww/goautoneg
   version: 75cd24fc2f2c2a2088577d12123ddee5f54e0675
@@ -219,7 +219,7 @@ imports:
 - name: github.com/go-openapi/jsonreference
   version: 8483a886a90412cd6858df4ea3483dce9c8e35a3
 - name: github.com/go-openapi/spec
-  version: 5bae59e25b21498baea7f9d46e9c147ec106a42e
+  version: 5b6cdde3200976e3ecceb2868706ee39b6aff3e4
 - name: github.com/go-openapi/swag
   version: 5899d5c5e619fda5fa86e14795a835f473ca284c
 - name: github.com/gogo/protobuf
@@ -258,7 +258,7 @@ imports:
 - name: github.com/google/gofuzz
   version: 44d81051d367757e1c7c6a5a86423ece9afcf63c
 - name: github.com/google/uuid
-  version: 8c31c18f31ede9fc8eae72290a7e7a8064e9b3e3
+  version: d460ce9f8df2e77fb1ba55ca87fafed96c607494
 - name: github.com/googleapis/gnostic
   version: 68f4ded48ba9414dab2ae69b3f0d69971da73aa5
   subpackages:
@@ -318,7 +318,7 @@ imports:
 - name: github.com/modern-go/reflect2
   version: 94122c33edd36123c84d5368cfb2b69df93a0ec8
 - name: github.com/ncw/swift
-  version: a12c20e04ddb87207d41409a7afda9848aba8df2
+  version: 24e3012fc8a71f004a6455bce2088031d50bf2b6
 - name: github.com/NYTimes/gziphandler
   version: 56545f4a5d46df9a6648819d1664c3a03a13ffdb
 - name: github.com/opencontainers/go-digest
@@ -899,12 +899,12 @@ imports:
   subpackages:
   - api/v1
 - name: kmodules.xyz/objectstore-api
-  version: 433d1fad089cb639415b182f6067cc5ffd43a2b3
+  version: 1819d12be808d6e39341205515e8ec91c55d4898
   subpackages:
   - api/v1
   - osm
 - name: kmodules.xyz/offshoot-api
-  version: 317e1ed3d6c458ec431ae651b7d61deb831f40ed
+  version: 3386b694ec505dca686fd81f82c3be89e9ca5fda
   subpackages:
   - api/v1
 - name: kmodules.xyz/webhook-runtime
