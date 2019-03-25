@@ -165,7 +165,7 @@ func (m MongoDB) HostAddress() string {
 }
 
 func (m MongoDB) ShardDSN(nodeNum int32) string {
-	if m.Spec.Topology != nil {
+	if m.Spec.Topology == nil {
 		return ""
 	}
 	host := m.ShardRepSetName(nodeNum) + "/" + m.Name + "-0." + m.GvrSvcName(m.ShardNodeName(nodeNum)) + "." + m.Namespace + ".svc"
@@ -176,7 +176,7 @@ func (m MongoDB) ShardDSN(nodeNum int32) string {
 }
 
 func (m MongoDB) ConfigSvrDSN() string {
-	if m.Spec.Topology != nil {
+	if m.Spec.Topology == nil {
 		return ""
 	}
 	host := m.ConfigSvrRepSetName() + "/" + m.Name + "-0." + m.GvrSvcName(m.ConfigSvrNodeName()) + "." + m.Namespace + ".svc"
