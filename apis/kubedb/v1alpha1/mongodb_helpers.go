@@ -168,9 +168,9 @@ func (m MongoDB) ShardDSN(nodeNum int32) string {
 	if m.Spec.Topology == nil {
 		return ""
 	}
-	host := m.ShardRepSetName(nodeNum) + "/" + m.Name + "-0." + m.GvrSvcName(m.ShardNodeName(nodeNum)) + "." + m.Namespace + ".svc"
+	host := m.ShardRepSetName(nodeNum) + "/" + m.ShardNodeName(nodeNum) + "-0." + m.GvrSvcName(m.ShardNodeName(nodeNum)) + "." + m.Namespace + ".svc"
 	for i := 1; i < int(types.Int32(m.Spec.Topology.Shard.Replicas)); i++ {
-		host += "," + m.Name + "-" + strconv.Itoa(i) + "." + m.GvrSvcName(m.ShardNodeName(nodeNum)) + "." + m.Namespace + ".svc"
+		host += "," + m.ShardNodeName(nodeNum) + "-" + strconv.Itoa(i) + "." + m.GvrSvcName(m.ShardNodeName(nodeNum)) + "." + m.Namespace + ".svc"
 	}
 	return host
 }
@@ -179,9 +179,9 @@ func (m MongoDB) ConfigSvrDSN() string {
 	if m.Spec.Topology == nil {
 		return ""
 	}
-	host := m.ConfigSvrRepSetName() + "/" + m.Name + "-0." + m.GvrSvcName(m.ConfigSvrNodeName()) + "." + m.Namespace + ".svc"
+	host := m.ConfigSvrRepSetName() + "/" + m.ConfigSvrNodeName() + "-0." + m.GvrSvcName(m.ConfigSvrNodeName()) + "." + m.Namespace + ".svc"
 	for i := 1; i < int(types.Int32(m.Spec.Topology.Shard.Replicas)); i++ {
-		host += "," + m.Name + "-" + strconv.Itoa(i) + "." + m.GvrSvcName(m.ConfigSvrNodeName()) + "." + m.Namespace + ".svc"
+		host += "," + m.ConfigSvrNodeName() + "-" + strconv.Itoa(i) + "." + m.GvrSvcName(m.ConfigSvrNodeName()) + "." + m.Namespace + ".svc"
 	}
 	return host
 }
