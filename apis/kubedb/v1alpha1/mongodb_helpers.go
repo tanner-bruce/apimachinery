@@ -169,10 +169,10 @@ func (m MongoDB) ShardDSN(nodeNum int32) string {
 		return ""
 	}
 	//host := m.ShardRepSetName(nodeNum) + "/" + m.ShardNodeName(nodeNum) + "-0." + m.GvrSvcName(m.ShardNodeName(nodeNum)) + "." + m.Namespace + ".svc"+":"+string(MongoDBShardPort)
-	host := fmt.Sprintf("%v/%v-0.%v.%v.svc:%v",m.ShardRepSetName(nodeNum) , m.ShardNodeName(nodeNum) , m.GvrSvcName(m.ShardNodeName(nodeNum)) , m.Namespace , MongoDBShardPort)
+	host := fmt.Sprintf("%v/%v-0.%v.%v.svc:%v", m.ShardRepSetName(nodeNum), m.ShardNodeName(nodeNum), m.GvrSvcName(m.ShardNodeName(nodeNum)), m.Namespace, MongoDBShardPort)
 	for i := 1; i < int(types.Int32(m.Spec.Topology.Shard.Replicas)); i++ {
 		//host += "," + m.ShardNodeName(nodeNum) + "-" + strconv.Itoa(i) + "." + m.GvrSvcName(m.ShardNodeName(nodeNum)) + "." + m.Namespace + ".svc"
-		host += fmt.Sprintf(",%v-%v.%v.%v.svc:%v", m.ShardNodeName(nodeNum), strconv.Itoa(i)  , m.GvrSvcName(m.ShardNodeName(nodeNum)) , m.Namespace , MongoDBShardPort)
+		host += fmt.Sprintf(",%v-%v.%v.%v.svc:%v", m.ShardNodeName(nodeNum), strconv.Itoa(i), m.GvrSvcName(m.ShardNodeName(nodeNum)), m.Namespace, MongoDBShardPort)
 	}
 	return host
 }
@@ -181,10 +181,10 @@ func (m MongoDB) ConfigSvrDSN() string {
 	if m.Spec.Topology == nil {
 		return ""
 	}
-//	host := m.ConfigSvrRepSetName() + "/" + m.ConfigSvrNodeName() + "-0." + m.GvrSvcName(m.ConfigSvrNodeName()) + "." + m.Namespace + ".svc"
-	host := fmt.Sprintf("%v/%v-0.%v.%v.svc:%v",m.ConfigSvrRepSetName(), m.ConfigSvrNodeName(), m.GvrSvcName(m.ConfigSvrNodeName()) , m.Namespace, MongoDBConfigdbPort)
+	//	host := m.ConfigSvrRepSetName() + "/" + m.ConfigSvrNodeName() + "-0." + m.GvrSvcName(m.ConfigSvrNodeName()) + "." + m.Namespace + ".svc"
+	host := fmt.Sprintf("%v/%v-0.%v.%v.svc:%v", m.ConfigSvrRepSetName(), m.ConfigSvrNodeName(), m.GvrSvcName(m.ConfigSvrNodeName()), m.Namespace, MongoDBConfigdbPort)
 	for i := 1; i < int(types.Int32(m.Spec.Topology.Shard.Replicas)); i++ {
-		host += fmt.Sprintf(",%v-%v.%v.%v.svc:%v", m.ConfigSvrNodeName(), strconv.Itoa(i)  , m.GvrSvcName(m.ConfigSvrNodeName()) , m.Namespace , MongoDBShardPort)
+		host += fmt.Sprintf(",%v-%v.%v.%v.svc:%v", m.ConfigSvrNodeName(), strconv.Itoa(i), m.GvrSvcName(m.ConfigSvrNodeName()), m.Namespace, MongoDBShardPort)
 	}
 	return host
 }
@@ -405,10 +405,10 @@ func (m *MongoDBSpec) GetSecrets() []string {
 	if m.DatabaseSecret != nil {
 		secrets = append(secrets, m.DatabaseSecret.SecretName)
 	}
-	if m.ReplicaSet != nil && m.CertificateSecret != nil {
+	if m.CertificateSecret != nil {
 		secrets = append(secrets, m.CertificateSecret.SecretName)
 	}
-	if m.ReplicaSet != nil && m.ReplicaSet.KeyFile != nil {
+	if m.ReplicaSet.KeyFile != nil {
 		secrets = append(secrets, m.ReplicaSet.KeyFile.SecretName)
 	}
 	return secrets
