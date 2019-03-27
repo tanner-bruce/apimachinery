@@ -408,7 +408,7 @@ func (m *MongoDBSpec) GetSecrets() []string {
 	if m.CertificateSecret != nil {
 		secrets = append(secrets, m.CertificateSecret.SecretName)
 	}
-	if m.ReplicaSet.KeyFile != nil {
+	if m.ReplicaSet != nil && m.ReplicaSet.KeyFile != nil {
 		secrets = append(secrets, m.ReplicaSet.KeyFile.SecretName)
 	}
 	return secrets
