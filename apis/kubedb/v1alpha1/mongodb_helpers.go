@@ -53,6 +53,13 @@ func (m MongoDB) MongosNodeName() string {
 	return m.Spec.Topology.Mongos.Prefix + mongosName
 }
 
+func (m MongoDB) RepSetName(nodeNum int32) string {
+	if m.Spec.ReplicaSet == nil {
+		return ""
+	}
+	return m.Spec.ReplicaSet.Name
+}
+
 func (m MongoDB) ShardRepSetName(nodeNum int32) string {
 	repSetName := fmt.Sprintf("shard%v", nodeNum)
 	if m.Spec.Topology != nil && m.Spec.Topology.Shard.Prefix != "" {
