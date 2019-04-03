@@ -11,6 +11,7 @@ import (
 	core "k8s.io/api/core/v1"
 	apiextensions "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 	crdutils "kmodules.xyz/client-go/apiextensions/v1beta1"
+	v1 "kmodules.xyz/client-go/core/v1"
 	meta_util "kmodules.xyz/client-go/meta"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 	mona "kmodules.xyz/monitoring-agent-api/api/v1"
@@ -18,8 +19,61 @@ import (
 
 var _ apis.ResourceInfo = &MongoDB{}
 
+const (
+	MongoDBShardLabelKey  = "node.shard"
+	MongoDBConfigLabelKey = "node.config"
+	MongoDBMongosLabelKey = "node.mongos"
+)
+
 func (m MongoDB) OffshootName() string {
 	return m.Name
+}
+
+func (m MongoDB) ShardNodeName(nodeNum int32) string {
+	if m.Spec.Topology == nil {
+		return ""
+	}
+	shardName := fmt.Sprintf("%v-shard%v", m.OffshootName(), nodeNum)
+	return m.Spec.Topology.Shard.Prefix + shardName
+}
+
+func (m MongoDB) ConfigSvrNodeName() string {
+	if m.Spec.Topology == nil {
+		return ""
+	}
+	configsvrName := fmt.Sprintf("%v-configsvr", m.OffshootName())
+	return m.Spec.Topology.ConfigServer.Prefix + configsvrName
+}
+
+func (m MongoDB) MongosNodeName() string {
+	if m.Spec.Topology == nil {
+		return ""
+	}
+	mongosName := fmt.Sprintf("%v-mongos", m.OffshootName())
+	return m.Spec.Topology.Mongos.Prefix + mongosName
+}
+
+func (m MongoDB) RepSetName(nodeNum int32) string {
+	if m.Spec.ReplicaSet == nil {
+		return ""
+	}
+	return m.Spec.ReplicaSet.Name
+}
+
+func (m MongoDB) ShardRepSetName(nodeNum int32) string {
+	repSetName := fmt.Sprintf("shard%v", nodeNum)
+	if m.Spec.Topology != nil && m.Spec.Topology.Shard.Prefix != "" {
+		repSetName = fmt.Sprintf("%v%v", m.Spec.Topology.Shard.Prefix, nodeNum)
+	}
+	return repSetName
+}
+
+func (m MongoDB) ConfigSvrRepSetName() string {
+	repSetName := fmt.Sprintf("cnfRepSet")
+	if m.Spec.Topology != nil && m.Spec.Topology.ConfigServer.Prefix != "" {
+		repSetName = m.Spec.Topology.ConfigServer.Prefix
+	}
+	return repSetName
 }
 
 func (m MongoDB) OffshootSelectors() map[string]string {
@@ -27,6 +81,24 @@ func (m MongoDB) OffshootSelectors() map[string]string {
 		LabelDatabaseName: m.Name,
 		LabelDatabaseKind: ResourceKindMongoDB,
 	}
+}
+
+func (m MongoDB) ShardSelectors(nodeNum int32) map[string]string {
+	return v1.UpsertMap(m.OffshootSelectors(), map[string]string{
+		MongoDBShardLabelKey: m.ShardNodeName(nodeNum),
+	})
+}
+
+func (m MongoDB) ConfigSvrSelectors() map[string]string {
+	return v1.UpsertMap(m.OffshootSelectors(), map[string]string{
+		MongoDBConfigLabelKey: m.ConfigSvrNodeName(),
+	})
+}
+
+func (m MongoDB) MongosSelectors() map[string]string {
+	return v1.UpsertMap(m.OffshootSelectors(), map[string]string{
+		MongoDBMongosLabelKey: m.MongosNodeName(),
+	})
 }
 
 func (m MongoDB) OffshootLabels() map[string]string {
@@ -37,6 +109,18 @@ func (m MongoDB) OffshootLabels() map[string]string {
 	out[meta_util.ComponentLabelKey] = "database"
 	out[meta_util.ManagedByLabelKey] = GenericKey
 	return meta_util.FilterKeys(GenericKey, out, m.Labels)
+}
+
+func (m MongoDB) ShardLabels(nodeNum int32) map[string]string {
+	return meta_util.FilterKeys(GenericKey, m.OffshootLabels(), m.ShardSelectors(nodeNum))
+}
+
+func (m MongoDB) ConfigSvrLabels() map[string]string {
+	return meta_util.FilterKeys(GenericKey, m.OffshootLabels(), m.ConfigSvrSelectors())
+}
+
+func (m MongoDB) MongosLabels() map[string]string {
+	return meta_util.FilterKeys(GenericKey, m.OffshootLabels(), m.MongosSelectors())
 }
 
 func (m MongoDB) ResourceShortCode() string {
@@ -59,8 +143,10 @@ func (m MongoDB) ServiceName() string {
 	return m.OffshootName()
 }
 
-func (m MongoDB) GoverningServiceName() string {
-	return m.OffshootName() + "-gvr"
+// Governing Service Name. Here, name parameter is either
+// OffshootName, ShardNodeName or ConfigSvrNodeName
+func (m MongoDB) GvrSvcName(name string) string {
+	return name + "-gvr"
 }
 
 // Snapshot service account name.
@@ -77,10 +163,35 @@ func (m MongoDB) SnapshotSAName() string {
 func (m MongoDB) HostAddress() string {
 	host := m.ServiceName()
 	if m.Spec.ReplicaSet != nil {
-		host = m.Spec.ReplicaSet.Name + "/" + m.Name + "-0." + m.GoverningServiceName() + "." + m.Namespace + ".svc"
+		host = m.Spec.ReplicaSet.Name + "/" + m.Name + "-0." + m.GvrSvcName(m.OffshootName()) + "." + m.Namespace + ".svc"
 		for i := 1; i < int(types.Int32(m.Spec.Replicas)); i++ {
-			host += "," + m.Name + "-" + strconv.Itoa(i) + "." + m.GoverningServiceName() + "." + m.Namespace + ".svc"
+			host += "," + m.Name + "-" + strconv.Itoa(i) + "." + m.GvrSvcName(m.OffshootName()) + "." + m.Namespace + ".svc"
 		}
+	}
+	return host
+}
+
+func (m MongoDB) ShardDSN(nodeNum int32) string {
+	if m.Spec.Topology == nil {
+		return ""
+	}
+	//host := m.ShardRepSetName(nodeNum) + "/" + m.ShardNodeName(nodeNum) + "-0." + m.GvrSvcName(m.ShardNodeName(nodeNum)) + "." + m.Namespace + ".svc"+":"+string(MongoDBShardPort)
+	host := fmt.Sprintf("%v/%v-0.%v.%v.svc:%v", m.ShardRepSetName(nodeNum), m.ShardNodeName(nodeNum), m.GvrSvcName(m.ShardNodeName(nodeNum)), m.Namespace, MongoDBShardPort)
+	for i := 1; i < int(types.Int32(m.Spec.Topology.Shard.Replicas)); i++ {
+		//host += "," + m.ShardNodeName(nodeNum) + "-" + strconv.Itoa(i) + "." + m.GvrSvcName(m.ShardNodeName(nodeNum)) + "." + m.Namespace + ".svc"
+		host += fmt.Sprintf(",%v-%v.%v.%v.svc:%v", m.ShardNodeName(nodeNum), strconv.Itoa(i), m.GvrSvcName(m.ShardNodeName(nodeNum)), m.Namespace, MongoDBShardPort)
+	}
+	return host
+}
+
+func (m MongoDB) ConfigSvrDSN() string {
+	if m.Spec.Topology == nil {
+		return ""
+	}
+	//	host := m.ConfigSvrRepSetName() + "/" + m.ConfigSvrNodeName() + "-0." + m.GvrSvcName(m.ConfigSvrNodeName()) + "." + m.Namespace + ".svc"
+	host := fmt.Sprintf("%v/%v-0.%v.%v.svc:%v", m.ConfigSvrRepSetName(), m.ConfigSvrNodeName(), m.GvrSvcName(m.ConfigSvrNodeName()), m.Namespace, MongoDBConfigdbPort)
+	for i := 1; i < int(types.Int32(m.Spec.Topology.Shard.Replicas)); i++ {
+		host += fmt.Sprintf(",%v-%v.%v.%v.svc:%v", m.ConfigSvrNodeName(), strconv.Itoa(i), m.GvrSvcName(m.ConfigSvrNodeName()), m.Namespace, MongoDBShardPort)
 	}
 	return host
 }
@@ -211,6 +322,18 @@ func (m *MongoDBSpec) SetDefaults() {
 			m.TerminationPolicy = TerminationPolicyPause
 		}
 	}
+	// required to upgrade operator from 0.11.0 to 0.12.0
+	if m.ReplicaSet != nil && m.ReplicaSet.KeyFile != nil {
+		if m.CertificateSecret == nil {
+			m.CertificateSecret = m.ReplicaSet.KeyFile
+		}
+		m.ReplicaSet.KeyFile = nil
+	}
+
+	if m.Topology != nil && m.Topology.Mongos.Strategy.Type == "" {
+		m.Topology.Mongos.Strategy.Type = apps.RollingUpdateDeploymentStrategyType
+	}
+
 	m.setDefaultProbes()
 }
 
@@ -260,6 +383,9 @@ func (m *MongoDBSpec) GetSecrets() []string {
 	var secrets []string
 	if m.DatabaseSecret != nil {
 		secrets = append(secrets, m.DatabaseSecret.SecretName)
+	}
+	if m.CertificateSecret != nil {
+		secrets = append(secrets, m.CertificateSecret.SecretName)
 	}
 	if m.ReplicaSet != nil && m.ReplicaSet.KeyFile != nil {
 		secrets = append(secrets, m.ReplicaSet.KeyFile.SecretName)
