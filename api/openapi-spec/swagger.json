@@ -20181,6 +20181,9 @@
       ]
     },
     "com.github.kubedb.apimachinery.apis.kubedb.v1alpha1.MongoDBConfigNode": {
+      "required": [
+        "replicas"
+      ],
       "properties": {
         "configSource": {
           "description": "ConfigSource is an optional field to provide custom configuration file for database (i.e mongod.cnf). If specified, this file will be used as configuration file otherwise default configuration file will be used.",
@@ -20239,6 +20242,9 @@
       ]
     },
     "com.github.kubedb.apimachinery.apis.kubedb.v1alpha1.MongoDBMongosNode": {
+      "required": [
+        "replicas"
+      ],
       "properties": {
         "configSource": {
           "description": "ConfigSource is an optional field to provide custom configuration file for database (i.e mongod.cnf). If specified, this file will be used as configuration file otherwise default configuration file will be used.",
@@ -20283,6 +20289,10 @@
       }
     },
     "com.github.kubedb.apimachinery.apis.kubedb.v1alpha1.MongoDBShardNode": {
+      "required": [
+        "shards",
+        "replicas"
+      ],
       "properties": {
         "configSource": {
           "description": "ConfigSource is an optional field to provide custom configuration file for database (i.e mongod.cnf). If specified, this file will be used as configuration file otherwise default configuration file will be used.",

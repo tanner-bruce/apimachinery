@@ -113,10 +113,10 @@ type MongoDBShardingTopology struct {
 type MongoDBShardNode struct {
 	// Shards represents number of shards for shard type of node
 	// More info: https://docs.mongodb.com/manual/core/sharded-cluster-shards/
-	Shards *int32 `json:"shards,omitempty"`
+	Shards *int32 `json:"shards"`
 
 	// MongoDB sharding node configs
-	MongoDBNode `json:",inline,omitempty"`
+	MongoDBNode `json:",inline"`
 
 	// Storage to specify how storage shall be used.
 	Storage *core.PersistentVolumeClaimSpec `json:"storage,omitempty"`
@@ -124,7 +124,7 @@ type MongoDBShardNode struct {
 
 type MongoDBConfigNode struct {
 	// MongoDB config server node configs
-	MongoDBNode `json:",inline,omitempty"`
+	MongoDBNode `json:",inline"`
 
 	// Storage to specify how storage shall be used.
 	Storage *core.PersistentVolumeClaimSpec `json:"storage,omitempty"`
@@ -132,7 +132,7 @@ type MongoDBConfigNode struct {
 
 type MongoDBMongosNode struct {
 	// MongoDB mongos node configs
-	MongoDBNode `json:",inline,omitempty"`
+	MongoDBNode `json:",inline"`
 
 	// The deployment strategy to use to replace existing pods with new ones.
 	// +optional
@@ -142,7 +142,7 @@ type MongoDBMongosNode struct {
 type MongoDBNode struct {
 	// Replicas represents number of replicas of this specific node.
 	// If current node has replicaset enabled, then replicas is the amount of replicaset nodes.
-	Replicas *int32 `json:"replicas,omitempty"`
+	Replicas *int32 `json:"replicas"`
 
 	// Prefix is the name prefix of this node.
 	Prefix string `json:"prefix,omitempty"`

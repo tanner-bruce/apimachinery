@@ -60,6 +60,8 @@ func TestMongoDB_ShardDSN(t *testing.T) {
 
 	shardDSN := mongodb.ShardDSN(0)
 	t.Log(shardDSN)
+
+	mongodb.Spec.SetDefaults()
 }
 
 func TestMongoDB_ConfigSvrDSN(t *testing.T) {
@@ -112,4 +114,26 @@ func TestMongoDB_ConfigSvrDSN(t *testing.T) {
 
 	configDSN := mongodb.ConfigSvrDSN()
 	t.Log(configDSN)
+}
+
+func TestMongoDB_SetDefaults(t *testing.T) {
+	mongodb := &MongoDB{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "demo-sample",
+			Namespace: "demo",
+		},
+		Spec: MongoDBSpec{
+			Version: "3.6-v2",
+			Storage: &core.PersistentVolumeClaimSpec{
+				Resources: core.ResourceRequirements{
+					Requests: core.ResourceList{
+						core.ResourceStorage: resource.MustParse("1Gi"),
+					},
+				},
+				StorageClassName: types.StringP("standard"),
+			},
+		},
+	}
+
+	mongodb.Spec.SetDefaults()
 }

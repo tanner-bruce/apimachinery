@@ -1591,6 +1591,7 @@ func schema_apimachinery_apis_kubedb_v1alpha1_MongoDBConfigNode(ref common.Refer
 						},
 					},
 				},
+				Required: []string{"replicas"},
 			},
 		},
 		Dependencies: []string{
@@ -1687,6 +1688,7 @@ func schema_apimachinery_apis_kubedb_v1alpha1_MongoDBMongosNode(ref common.Refer
 						},
 					},
 				},
+				Required: []string{"replicas"},
 			},
 		},
 		Dependencies: []string{
@@ -1732,6 +1734,7 @@ func schema_apimachinery_apis_kubedb_v1alpha1_MongoDBNode(ref common.ReferenceCa
 						},
 					},
 				},
+				Required: []string{"replicas"},
 			},
 		},
 		Dependencies: []string{
@@ -1817,6 +1820,7 @@ func schema_apimachinery_apis_kubedb_v1alpha1_MongoDBShardNode(ref common.Refere
 						},
 					},
 				},
+				Required: []string{"shards", "replicas"},
 			},
 		},
 		Dependencies: []string{

@@ -15,6 +15,7 @@ import (
 	meta_util "kmodules.xyz/client-go/meta"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 	mona "kmodules.xyz/monitoring-agent-api/api/v1"
+	ofst "kmodules.xyz/offshoot-api/api/v1"
 )
 
 var _ apis.ResourceInfo = &MongoDB{}
@@ -322,6 +323,7 @@ func (m *MongoDBSpec) SetDefaults() {
 			m.TerminationPolicy = TerminationPolicyPause
 		}
 	}
+
 	// required to upgrade operator from 0.11.0 to 0.12.0
 	if m.ReplicaSet != nil && m.ReplicaSet.KeyFile != nil {
 		if m.CertificateSecret == nil {
@@ -330,25 +332,53 @@ func (m *MongoDBSpec) SetDefaults() {
 		m.ReplicaSet.KeyFile = nil
 	}
 
-	if m.Topology != nil && m.Topology.Mongos.Strategy.Type == "" {
-		m.Topology.Mongos.Strategy.Type = apps.RollingUpdateDeploymentStrategyType
-	}
+	if m.Topology != nil {
+		if m.Topology.Mongos.Strategy.Type == "" {
+			m.Topology.Mongos.Strategy.Type = apps.RollingUpdateDeploymentStrategyType
+		}
 
-	m.setDefaultProbes()
+		// set default probes
+		m.setDefaultProbes(&m.Topology.Shard.PodTemplate)
+		m.setDefaultProbes(&m.Topology.ConfigServer.PodTemplate)
+		m.setDefaultProbes(&m.Topology.Mongos.PodTemplate)
+
+		// set default security context
+		m.setSecurityContext(&m.Topology.Shard.PodTemplate)
+		m.setSecurityContext(&m.Topology.ConfigServer.PodTemplate)
+		m.setSecurityContext(&m.Topology.Mongos.PodTemplate)
+
+	} else {
+		if m.Replicas == nil {
+			m.Replicas = types.Int32P(1)
+		}
+
+		if m.PodTemplate == nil {
+			m.PodTemplate = new(ofst.PodTemplateSpec)
+		}
+		// set default probes
+		m.setDefaultProbes(m.PodTemplate)
+
+		// set default security context
+		m.setSecurityContext(m.PodTemplate)
+	}
 }
 
 // setDefaultProbes sets defaults only when probe fields are nil.
 // In operator, check if the value of probe fields is "{}".
 // For "{}", ignore readinessprobe or livenessprobe in statefulset.
 // ref: https://github.com/helm/charts/blob/345ba987722350ffde56ec34d2928c0b383940aa/stable/mongodb/templates/deployment-standalone.yaml#L93
-func (m *MongoDBSpec) setDefaultProbes() {
+func (m *MongoDBSpec) setDefaultProbes(podTemplate *ofst.PodTemplateSpec) {
+	if podTemplate == nil {
+		return
+	}
+
 	cmd := []string{
 		"mongo",
 		"--eval",
 		"db.adminCommand('ping')",
 	}
-	if m.PodTemplate.Spec.LivenessProbe == nil {
-		m.PodTemplate.Spec.LivenessProbe = &core.Probe{
+	if podTemplate.Spec.LivenessProbe == nil {
+		podTemplate.Spec.LivenessProbe = &core.Probe{
 			Handler: core.Handler{
 				Exec: &core.ExecAction{
 					Command: cmd,
@@ -360,8 +390,8 @@ func (m *MongoDBSpec) setDefaultProbes() {
 			TimeoutSeconds:   5,
 		}
 	}
-	if m.PodTemplate.Spec.ReadinessProbe == nil {
-		m.PodTemplate.Spec.ReadinessProbe = &core.Probe{
+	if podTemplate.Spec.ReadinessProbe == nil {
+		podTemplate.Spec.ReadinessProbe = &core.Probe{
 			Handler: core.Handler{
 				Exec: &core.ExecAction{
 					Command: cmd,
@@ -372,6 +402,25 @@ func (m *MongoDBSpec) setDefaultProbes() {
 			SuccessThreshold: 1,
 			TimeoutSeconds:   1,
 		}
+	}
+}
+
+// setSecurityContext will set default PodSecurityContext.
+func (m *MongoDBSpec) setSecurityContext(podTemplate *ofst.PodTemplateSpec) {
+	if podTemplate == nil {
+		return
+	}
+	if podTemplate.Spec.SecurityContext == nil {
+		podTemplate.Spec.SecurityContext = new(core.PodSecurityContext)
+	}
+	if podTemplate.Spec.SecurityContext.FSGroup == nil {
+		podTemplate.Spec.SecurityContext.FSGroup = types.Int64P(999)
+	}
+	if podTemplate.Spec.SecurityContext.RunAsNonRoot == nil {
+		podTemplate.Spec.SecurityContext.RunAsNonRoot = types.BoolP(true)
+	}
+	if podTemplate.Spec.SecurityContext.RunAsUser == nil {
+		podTemplate.Spec.SecurityContext.RunAsUser = types.Int64P(999)
 	}
 }
 
